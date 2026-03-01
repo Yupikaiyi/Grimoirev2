@@ -31,14 +31,43 @@ Grimoire es una plataforma avanzada de gestión y búsqueda de documentos que co
 pip install -r requirements.txt
 ```
 
-2. **Asegúrate de que Elasticsearch esté activo**:
-La aplicación intentará crear el índice `grimoire_files` automáticamente al arrancar.
+2. **Configura las variables de entorno**:
+Crea un archivo llamado `.env` en la raíz del proyecto y añade tu clave de API de Gemini:
+```env
+GEMINI_API_KEY=tu_clave_api_aqui
+```
+*(Este paso es necesario para que el Chat con IA funcione correctamente).*
 
-3. **Inicia la aplicación**:
+3. **Descarga e instalación de Elasticsearch (Windows)**:
+Puedes descargar Elasticsearch ejecutando uno de los siguientes comandos en tu terminal:
+
+```powershell
+powershell -Command "Invoke-WebRequest -Uri 'https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.12.0-windows-x86_64.zip' -OutFile 'elasticsearch.zip'"
+
+# Alternativa usando curl:
+curl.exe -L -o elasticsearch.zip https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.12.0-windows-x86_64.zip
+```
+Extrae el contenido del `.zip` de Elasticsearch.
+
+## 🏃 Ejecución del Proyecto
+
+Para arrancar Grimoire correctamente, necesitas tener tanto Elasticsearch como la aplicación Flask corriendo al mismo tiempo.
+
+1. **Inicia Elasticsearch**:
+Abre una terminal, navega a la carpeta donde extrajiste Elasticsearch y ejecuta:
+```bash
+bin\elasticsearch.bat
+```
+*(Nota: Mantén esta terminal abierta. La aplicación intentará crear el índice `grimoire_files` automáticamente al conectarse).*
+
+2. **Inicia la aplicación principal**:
+Abre una *nueva* terminal, asegúrate de estar en el directorio del proyecto `Grimoire` y ejecuta:
 ```bash
 python app.py
 ```
-La aplicación estará disponible en: [http://localhost:8080](http://localhost:8080)
+
+3. **Accede a la plataforma**:
+Abre tu navegador web y visita: [http://localhost:8080](http://localhost:8080)
 
 ## 📁 Estructura del Proyecto
 
