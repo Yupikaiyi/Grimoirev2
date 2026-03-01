@@ -11,8 +11,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons & Marked.js -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='Icon.png') }}?v=4">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -578,7 +579,11 @@
         function appendMessage(role, text) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `chat-bubble bubble-${role}`;
-            msgDiv.textContent = text;
+            if (role === 'bot') {
+                msgDiv.innerHTML = marked.parse(text);
+            } else {
+                msgDiv.textContent = text;
+            }
             chatHistory.appendChild(msgDiv);
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }

@@ -519,12 +519,14 @@ def chat_with_doc():
     if not os.path.exists(file_path):
         return jsonify({"error": "Archivo no encontrado"}), 404
 
-    # Basic content extraction (text-based for now)
+    # Basic content extraction
     ext = filename.split('.')[-1].lower()
     content = ""
+    uploaded_gemini_file = None
     
     # Text-based extensions we can read directly
     text_exts = ['txt', 'md', 'py', 'js', 'html', 'css', 'json', 'sql', 'c', 'cpp', 'java']
+    multimodal_exts = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'pdf', 'csv', 'xls', 'xlsx']
     
     if ext in text_exts:
         try:
@@ -532,6 +534,12 @@ def chat_with_doc():
                 content = f.read()
         except Exception as e:
             content = f"[Error leyendo archivo: {str(e)}]"
+    elif ext in multimodal_exts:
+        try:
+            uploaded_gemini_file = client.files.upload(file=file_path)
+            content = f"[El sistema ha subido este archivo multmedia ({ext.upper()}) nativamente a tus sentidos. Por favor, analízalo usando tus capacidades multimodales para responder.]"
+        except Exception as e:
+            content = f"[Error subiendo archivo multimodal a Gemini: {str(e)}]"
     else:
         content = f"[Archivo no textual (tipo .{ext}). Gemini analizará el contexto si es posible.]"
 
@@ -540,25 +548,30 @@ def chat_with_doc():
         f"Eres el 'Gran Mago de Grimoire', el sabio custodio de esta biblioteca arcana. "
         f"Tu deber es asistir en el análisis del documento '{filename}' con precisión, seriedad y cortesía mística.\n\n"
         "DIRECTRICES DE RESPUESTA:\n"
-        "1. RIGOR Y GROUNDING: Basa tus respuestas EXCLUSIVAMENTE en el CONTENIDO DEL DOCUMENTO proporcionado abajo. "
+        "1. RIGOR Y GROUNDING: Basa tus respuestas EXCLUSIVAMENTE en el CONTENIDO DEL DOCUMENTO proporcionado adjunto o abajo. "
         "Si la información no está presente, indícalo con honestidad profesional (ej: 'Mis registros no contienen esa información').\n"
         "2. TONO SERIO Y CULTO: Mantén un registro profesional, directo y sabio. Reduce el uso de términos como 'viajero' o 'hechizo', "
         "pero conserva la elegancia y el léxico refinado propio de un Gran Mago.\n"
         "3. NO INVENTAR: No generes datos, fechas ni hechos que no figuren explícitamente en el texto.\n"
         "4. EFICIENCIA: Al resumir o responder, sé estructurado y ve al grano, manteniendo siempre la cordialidad arcana.\n\n"
-        "CONTENIDO DEL DOCUMENTO (CONTEXTO):\n"
+        "CONTENIDO DE TEXTO EXTRAÍDO (Si aplica):\n"
         "====================================\n"
         f"{content[:15000]}\n"
         "====================================\n\n"
-        "Responde a la consulta del viajero basándote únicamente en lo que ves arriba."
+        "Responde a la consulta del viajero basándote únicamente en el archivo adjunto o en el texto extraído que ves arriba."
     )
 
     try:
         # Simple generation for now, could be improved with chat session
         full_prompt = f"{system_prompt}\nPregunta: {user_message}"
+        
+        contents_list = [full_prompt]
+        if uploaded_gemini_file:
+            contents_list.append(uploaded_gemini_file)
+            
         response = client.models.generate_content(
-            model="gemini-2.5-pro", # Using flash for speed
-            contents=full_prompt
+            model="gemini-2.5-flash", # Using flash for speed and higher free tier quotas
+            contents=contents_list
         )
         return jsonify({"text": response.text})
     except Exception as e:

@@ -809,6 +809,61 @@ body {
     border: 1px solid var(--border);
 }
 
+/* Markdown Styles for Bot Bubbles */
+.bubble-bot p {
+    margin: 0 0 0.6rem 0;
+}
+
+.bubble-bot p:last-child {
+    margin-bottom: 0;
+}
+
+.bubble-bot ul,
+.bubble-bot ol {
+    padding-left: 1.25rem;
+    margin: 0 0 0.6rem 0;
+}
+
+.bubble-bot li {
+    margin-bottom: 0.25rem;
+}
+
+.bubble-bot code {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.85em;
+    color: #e83e8c;
+}
+
+.bubble-bot pre {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+}
+
+.bubble-bot pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font-size: 0.85em;
+}
+
+.bubble-bot a {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.bubble-bot strong {
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+
 .chat-panel-input-area {
     padding: 1.25rem;
     border-top: 1px solid var(--border);
