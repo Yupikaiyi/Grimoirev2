@@ -303,10 +303,6 @@ def upload_file():
         flash(f'¡Subida completada! {uploaded_count} archivo(s) guardado(s).', 'success')
     return redirect(url_for('home'))
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')

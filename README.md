@@ -49,7 +49,7 @@ Grimoire/
 ├── grimoire.db         # Base de datos SQLite (Metadatos)
 ├── testfiles/          # Repositorio de documentos subidos
 ├── static/             # CSS moderno y recursos visuales
-└── templates/          # Plantillas Jinja2 (Results, Index, About)
+└── templates/          # Plantillas Jinja2 (Results, Index, etc)
 ```
 
 ## 🗺️ API Endpoints

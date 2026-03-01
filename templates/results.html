@@ -14,7 +14,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Icon.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Icon.png') }}?v=4">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
@@ -34,7 +34,6 @@
             </div>
             <ul class="nav-links">
                 <li><a href="/">Inicio</a></li>
-                <li><a href="/about" class="text-muted">Acerca de</a></li>
                 <li><a href="/tutorial" class="text-muted">Tutorial</a></li>
                 {% if user and user.is_admin %}
                 <li><a href="/admin" class="text-muted">Administración</a></li>
@@ -506,12 +505,12 @@
             const pdfExts = ['pdf'];
 
             if (imageExts.includes(ext)) {
-                content.innerHTML = `<img src="${url}" class="preview-image" style="width:100%; height:100%; object-fit:contain;">`;
+                content.innerHTML = `<img src="${url}" class="preview-image" style="width:100%; flex:1; min-height:0; object-fit:contain;">`;
             } else if (pdfExts.includes(ext)) {
-                content.innerHTML = `<iframe src="${url}" class="preview-pdf" style="width:100%; height:100%; border:none;"></iframe>`;
+                content.innerHTML = `<iframe src="${url}" class="preview-pdf" style="width:100%; flex:1; min-height:0; border:none;"></iframe>`;
             } else if (textExts.includes(ext)) {
                 fetch(url).then(r => r.text()).then(t => {
-                    content.innerHTML = `<pre class="preview-text" style="padding:1.5rem; margin:0; white-space:pre-wrap; font-size:0.85rem; height:100%; overflow-y:auto;">${t.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`;
+                    content.innerHTML = `<pre class="preview-text" style="padding:1.5rem; margin:0; white-space:pre-wrap; font-size:0.85rem; flex:1; min-height:0; overflow-y:auto;">${t.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</pre>`;
                 });
             } else {
                 content.innerHTML = `

@@ -43,3 +43,4 @@ testfiles/
 elasticsearch-8.12.0/
 elasticsearch.zip
 Antigravity.exe
+.env

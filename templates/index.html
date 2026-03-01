@@ -14,7 +14,7 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Icon.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Icon.png') }}?v=4">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
@@ -27,7 +27,6 @@
             </div>
             <ul class="nav-links">
                 <li><a href="/">Inicio</a></li>
-                <li><a href="/about" class="text-muted">Acerca de</a></li>
                 <li><a href="/tutorial" class="text-muted">Tutorial</a></li>
                 {% if user and user.is_admin %}
                 <li><a href="/admin" class="text-muted">Administración</a></li>

@@ -13,6 +13,7 @@
 
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='Icon.png') }}?v=4">
 
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
@@ -143,7 +144,6 @@
             </div>
             <ul class="nav-links">
                 <li><a href="/">Inicio</a></li>
-                <li><a href="/about">Acerca de</a></li>
                 <li><a href="/tutorial" class="active">Tutorial</a></li>
             </ul>
         </nav>
@@ -167,7 +167,6 @@
                 <ul class="tutorial-list">
                     <li><i data-lucide="check"></i> Soporta PDFs, imágenes, código y más.</li>
                     <li><i data-lucide="check"></i> La IA extrae metadatos al instante.</li>
-                    <li><i data-lucide="check"></i> Se categorizan solos.</li>
                 </ul>
             </div>
         </section>
@@ -214,8 +213,6 @@
                 <h3><i data-lucide="settings"></i> 4. Gestiona y Organiza</h3>
                 <p>Al buscar, tienes a la derecha acciones rápidas por cada archivo para organizar todo a tu medida.</p>
                 <ul class="tutorial-list">
-                    <li><i data-lucide="user-plus"></i> <strong class="text-primary">Identidad:</strong> Asigna el
-                        archivo a una persona o departamento.</li>
                     <li><i data-lucide="hash"></i> <strong class="text-primary">Tags:</strong> Crea y añade palabras
                         clave para filtrar sin esfuerzo.</li>
                     <li><i data-lucide="info"></i> <strong class="text-primary">Info:</strong> Ver detalles y metadatos
