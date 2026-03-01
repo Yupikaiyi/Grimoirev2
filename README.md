@@ -9,7 +9,7 @@ Grimoire es una plataforma avanzada de gestión y búsqueda de documentos que co
 - **Gestión de Identidad**: Asocia cada archivo con un **Responsable** y un **Departamento** para una organización estructural clara.
 - **Filtrado Dinámico**: Filtra por fecha, tamaño, etiquetas y extensiones de archivo que se adaptan automáticamente a tu base de datos.
 - **Interfaz "Techno-Light"**: Diseño moderno, claro y responsivo con previsualización de documentos.
-- **Chat con IA (Próximamente)**: Consulta directa sobre el contenido de los documentos usando Gemini.
+- **Chat con IA**: Consulta directa sobre el contenido de los documentos usando Gemini.
 
 ## 🛠️ Requisitos Técnico
 
