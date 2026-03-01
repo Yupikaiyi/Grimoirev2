@@ -97,9 +97,24 @@ def mock_search_files(query, offset=0, filters=None):
             }
         }
 
-        # Only add KNN if NOT an exact search
+        # Only add KNN + text boost if NOT an exact search
         if not is_exact:
             query_vector = search_model.encode(query).tolist()
+            
+            # Hybrid: boost literal name matches above semantic results
+            query_lower = query.lower()
+            body["query"]["bool"]["should"] = [
+                {
+                    "wildcard": {
+                        "name": {
+                            "value": f"*{query_lower}*",
+                            "case_insensitive": True,
+                            "boost": 10
+                        }
+                    }
+                }
+            ]
+            
             body["knn"] = {
                 "field": "title_vector",
                 "query_vector": query_vector,
