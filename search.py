@@ -24,9 +24,14 @@ def get_file_metadata_sync(filename):
 
 def mock_search_files(query, offset=0, filters=None):
     try:
-        query_vector = search_model.encode(query).tolist()
+        # Check for exact match (quoted query)
+        is_exact = query.startswith('"') and query.endswith('"') and len(query) > 2
         
         es_filters = []
+        if is_exact:
+            exact_name = query[1:-1]
+            es_filters.append({"term": {"name": exact_name}})
+        
         if filters:
             # Date Filter Helper
             def build_date_range(filter_val):
@@ -89,15 +94,19 @@ def mock_search_files(query, offset=0, filters=None):
                     "must": [],
                     "filter": es_filters
                 }
-            },
-            "knn": {
+            }
+        }
+
+        # Only add KNN if NOT an exact search
+        if not is_exact:
+            query_vector = search_model.encode(query).tolist()
+            body["knn"] = {
                 "field": "title_vector",
                 "query_vector": query_vector,
                 "k": 100,
                 "num_candidates": 500,
                 "filter": es_filters
             }
-        }
 
         res = es.search(index="grimoire_files", body=body)
         results = []

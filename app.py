@@ -29,7 +29,7 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS file_metadata
-                 (filename TEXT PRIMARY KEY, tags TEXT, owner TEXT, department TEXT)''')
+                 (filename TEXT PRIMARY KEY, tags TEXT, owner TEXT, department TEXT, uploader TEXT)''')
     
     # Nuevo: Tabla de usuarios
     c.execute('''CREATE TABLE IF NOT EXISTS users
@@ -66,6 +66,12 @@ def init_db():
         ]
         c.executemany("INSERT INTO users (username, password_hash, department, is_admin) VALUES (?, ?, ?, ?)", users)
     
+    # Migration: add uploader column if it doesn't exist
+    try:
+        c.execute("ALTER TABLE file_metadata ADD COLUMN uploader TEXT")
+    except sqlite3.OperationalError:
+        pass # Column already exists
+    
     conn.commit()
     conn.close()
 
@@ -92,16 +98,17 @@ def admin_required(f):
 def get_file_metadata(filename):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("SELECT tags, owner, department FROM file_metadata WHERE filename = ?", (filename,))
+    c.execute("SELECT tags, owner, department, uploader FROM file_metadata WHERE filename = ?", (filename,))
     row = c.fetchone()
     conn.close()
     if row:
         return {
             'tags': json.loads(row[0]) if row[0] else [],
             'owner': row[1] or "",
-            'department': row[2] or ""
+            'department': row[2] or "",
+            'uploader': row[3] or row[1] or "" # Fallback to owner for old records
         }
-    return {'tags': [], 'owner': "", 'department': ""}
+    return {'tags': [], 'owner': "", 'department': "", 'uploader': ""}
 
 def save_file_tags(filename, tags):
     conn = sqlite3.connect(DB_PATH)
@@ -262,8 +269,8 @@ def upload_file():
             initial_tags = [user_dept.lower()] if user_dept else []
             conn = sqlite3.connect(DB_PATH)
             c = conn.cursor()
-            c.execute("INSERT OR REPLACE INTO file_metadata (filename, tags, owner, department) VALUES (?, ?, ?, ?)",
-                      (filename, json.dumps(initial_tags), user_name, user_dept))
+            c.execute("INSERT OR REPLACE INTO file_metadata (filename, tags, owner, department, uploader) VALUES (?, ?, ?, ?, ?)",
+                      (filename, json.dumps(initial_tags), user_name, user_dept, user_name))
             conn.commit()
             conn.close()
 
@@ -374,6 +381,12 @@ def search_api():
         conn.close()
         for res in results:
             res['is_favorite'] = res['name'] in favs
+            # Also inject actual metadata from SQLite to ensure frontend has uploader/owner info
+            m = get_file_metadata(res['name'])
+            res['uploader'] = m.get('uploader')
+            res['owner'] = m.get('owner')
+            res['department'] = m.get('department')
+            res['tags'] = m.get('tags')
             
     return jsonify({"query": query, "results": results, "user": {
         "username": session.get('username'),
@@ -645,6 +658,47 @@ def update_file_identity(filename):
         department = data.get('department', '')
         save_file_identity(filename, owner, department)
         return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/files/<filename>', methods=['DELETE'])
+@login_required
+def delete_file(filename):
+    user_id = session.get('user_id')
+    is_admin = session.get('is_admin', False)
+    
+    # Check permissions: Admin or Uploader
+    meta = get_file_metadata(filename)
+    if not is_admin and meta.get('uploader') != session.get('username'):
+        return jsonify({"error": "Solo el administrador o la persona que subió el archivo pueden borrarlo"}), 403
+    
+    try:
+        # 1. Delete from Disk
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            
+        # 2. Delete from SQLite
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("DELETE FROM file_metadata WHERE filename = ?", (filename,))
+        c.execute("DELETE FROM user_favorites WHERE filename = ?", (filename,))
+        c.execute("DELETE FROM user_recent WHERE filename = ?", (filename,))
+        conn.commit()
+        conn.close()
+        
+        # 3. Delete from Elasticsearch
+        if es:
+            try:
+                # Use delete_by_query to reliably remove all docs with this name
+                # This works regardless of whether filename was used as the doc ID
+                es.delete_by_query(index=ES_INDEX_NAME, body={
+                    "query": {"term": {"name": filename}}
+                })
+            except Exception as e:
+                print(f"ES deletion error: {e}")
+                
+        return jsonify({"success": True, "message": f"Archivo {filename} borrado correctamente"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
